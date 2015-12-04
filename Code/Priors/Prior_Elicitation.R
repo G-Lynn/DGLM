@@ -1,10 +1,12 @@
 rm(list=ls())
-source("~/Dropbox/Surya_Group/Baseball/Simulation_Study/DLM_functions.R")
-source("~/Dropbox/Surya_Group/Baseball/Simulation_Study/DLM_FFBS.R")
+#source("~/Dropbox/Surya_Group/Baseball/Simulation_Study/DLM_functions.R")
+#source("~/Dropbox/Surya_Group/Baseball/Simulation_Study/DLM_FFBS.R")
+source("~/DGLM/Code/Q_Age.R")
+source("~/DGLM/Code/Q_PED.R")
 
 K = 10
 N.samples = 100000
-PI.0 = seq(from = .005, to = .10, len = K) 
+PI.0 = seq(from = .01, to = .10, len = K) 
 m0 = log( PI.0 / (1-PI.0 ) )
 
 beta = (8/10)
@@ -29,11 +31,12 @@ for(k in 1:K){
   if(k<tau.0){
     weights[k] = exp(-1*abs(m0[k]-m0[tau.0]) )
   }else{
-    weights[k] = exp(-2*abs(m0[k]-m0[tau.0]) )
+    weights[k] = exp(-4*abs(m0[k]-m0[tau.0]) )
   }
 }
 
 PI.G.0 = weights/sum(weights)
+PI.Z.0 = matrix(c(1,0),nrow = 1)
 
 barplot(PI.G.0, names.arg = round( 1/(1+exp(-m0)), 3) )
 
@@ -52,8 +55,8 @@ PI.G_Z.0[(K+1):(2*K)] = PI.G.0 * PI.Z.0[,2]
 Q.gamma = list()
 t.T = 18
 Age = 22:39
-ALPHA = 2
-ALPHA.decay = 5
+ALPHA = 4
+ALPHA.decay = 4
 for(t in 1:t.T){
   Q.gamma[[t]] = Q.age(Age[t],alpha=ALPHA,decay.rate = ALPHA.decay, K)
 }
@@ -76,5 +79,6 @@ Pi.CI = apply(Pi,2,quantile, prob = c(.025,.975))
 plot(Age,E.Pi, ylim = range(Pi.CI) )
 lines(Age,Pi.CI[1,])
 lines(Age,Pi.CI[2,])
+abline(h=.05)
 
 
