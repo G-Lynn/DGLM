@@ -55,8 +55,8 @@ PI.G_Z.0[(K+1):(2*K)] = PI.G.0 * PI.Z.0[,2]
 Q.gamma = list()
 t.T = 18
 Age = 22:39
-ALPHA = 4
-ALPHA.decay = 4
+ALPHA = 5
+ALPHA.decay = 5
 for(t in 1:t.T){
   Q.gamma[[t]] = Q.age(Age[t],alpha=ALPHA,decay.rate = ALPHA.decay, K)
 }
