@@ -1,13 +1,14 @@
 # EDA for Prior. 
 rm(list=ls())
-load("~/Dropbox/Baseball/Lahman/Age_Alignment_Prior.RData")
-source("~/Dropbox/Baseball/Particle Filter/PF_Mixture/PF_Functions.R")
-n.T = length(Age.Alignment.Prior)
+load("~/DGLM/Data/AgeAlignment.RData")
+#source("~/Dropbox/Baseball/Particle Filter/PF_Mixture/PF_Functions.R")
+source("~/DGLM/Code/Q_Age.R")
+source("~/DGLM/Code/Q_PED.R")
+n.T = length(Age.Alignment)
 n = rep(NA,n.T)
 
-for(t in 1:n.T) n[t] = length(Age.Alignment.Prior[[t]])
+for(t in 1:n.T) n[t] = length(Age.Alignment[[t]])
 Age = 17:(17+n.T-1)
-
 
 #3) Increase in rate as a function of theta.  What is my prior really doing.
 #Suppose that that the PED performance increase is approx .5 in log odds
@@ -53,13 +54,18 @@ axis(2,labels=T,cex.axis=1.5)
 dev.off()
 
 #5a) Marginal PED probability
-N.Players = 30
-K = ceiling(sqrt(N.Players))
+K = 10
 delta = .95
-m0.level = -5.75+(0:(K-1))/(K-1)*4
+PI.0 = seq(from = .01, to = .10, len = K) 
+m0 = log( PI.0 / (1-PI.0 ) )
+
 beta = 8/10
-sigma2.k = -2/(log(beta)*(K-1)^2)
-sigma2 = rep(sigma2.k,K)
+sigma2 = rep(NA,K)
+for(k in 1:K){
+  delta.m = (m0[k+1]-m0[k])
+  if(k==K) delta.m = (m0[k]-m0[k-2])/2
+  sigma2[k] = -delta.m^2/(8*log(beta))
+}
 
 
 pi.0 = matrix(c(1,0),nrow = 1)
@@ -90,31 +96,33 @@ PED.curve = as.numeric( t(Pi.PED)%*%m0.PED )
 
 #5) Expected Age Curve
 
-m0 = matrix(m0.level,ncol = 1)
+m0 = matrix(m0,ncol = 1)
 C0 = sigma2*diag(K)
 
 mu = list()
-weights = 1/(1:K)^4
-tau.0 = round(.5*K)
-Pi.Gamma.0 = rep(NA,K)
-Pi.Gamma.0[tau.0] = weights[1]
-for(tau in 1:K){
-  if((tau.0-tau)>0) Pi.Gamma.0[tau.0-tau] = weights[1+tau]
-  if((tau.0+tau)<=K) Pi.Gamma.0[tau.0+tau] = weights[1+tau]
+tau.0 = which(abs(m0-(-4)) == min(abs(m0-(-4) ) ) ) 
+PI.G.0 = rep(NA,K)
+weights = rep(NA,K)
+for(k in 1:K){
+  if(k<tau.0){
+    weights[k] = exp(-1*abs(m0[k]-m0[tau.0]) )
+  }else{
+    weights[k] = exp(-4*abs(m0[k]-m0[tau.0]) )
+  }
 }
 
-Pi.Gamma.0 = Pi.Gamma.0/sum(Pi.Gamma.0)
+PI.G.0 = weights/sum(weights)
 m0.names = as.character(round( exp(m0)/(1+exp(m0)),3 ))
 pdf("~/Desktop/Prelim/P_Gamma_0.pdf")
-barplot(Pi.Gamma.0, names.arg = m0.names, xlab = "HR Rates", ylab = "Probability",yaxt="n")
+barplot(PI.G.0, names.arg = m0.names, xlab = "HR Rates", ylab = "Probability",yaxt="n")
 dev.off()
 
 M = 1000000
 Mixture.Prior = rep(NA,M)
 
 for(m in 1:M){
-  gamma.draw = sample(1:K, 1, prob = Pi.Gamma.0)
-  Mixture.Prior[m] = rnorm(1,m0[gamma.draw],sigma2[gamma.draw])
+  gamma.draw = sample(1:K, 1, prob = PI.G.0)
+  Mixture.Prior[m] = rnorm(1,m0[gamma.draw],sqrt(sigma2[gamma.draw]) )
 }
 
 pdf("~/Desktop/Prelim/Mixture_Prior_Ability.pdf")
@@ -134,6 +142,8 @@ dev.off()
 m = matrix(nrow = K, ncol = n.T)
 C = matrix(nrow = K, ncol = n.T)
 
+ALPHA = 5
+ALPHA.decay = 5
 Pi.Gamma = matrix(nrow = K, ncol = n.T)
   for(k in 1:K){
     p0 = matrix(rep(0,K),nrow = 1)
@@ -144,12 +154,12 @@ Pi.Gamma = matrix(nrow = K, ncol = n.T)
     for(t in 1:n.T){
 
       age = Age[t]
-      Q.t = Q.age(age,alpha=3.5,decay.rate = 3.5, K) 
+      Q.t = Q.age(age,alpha=ALPHA,decay.rate = ALPHA.decay, K) 
       #Q.t = Q.RW.age(.95,age,K)
       Q = Q%*%Q.t
       
       if(t==1){
-        Pi.Gamma[,t] =Pi.Gamma.0%*%Q.t
+        Pi.Gamma[,t] =PI.G.0%*%Q.t
       }else{
         Pi.Gamma[,t] = t(Pi.Gamma[,t-1])%*%Q.t
       }
