@@ -1,6 +1,4 @@
 rm(list=ls())
-#source("~/Dropbox/Surya_Group/Baseball/Simulation_Study/DLM_functions.R")
-#source("~/Dropbox/Surya_Group/Baseball/Simulation_Study/DLM_FFBS.R")
 source("~/DGLM/Code/Q_Age.R")
 source("~/DGLM/Code/Q_PED.R")
 

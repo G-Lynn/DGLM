@@ -1,4 +1,4 @@
-MCMC.collapsed<-function(init,nSamples,N.MC,Thin.Rate,m0,C0,sigma2.theta,t.T,n,K,PI.G_Z.0,Q.gamma_zeta,N,y){
+MCMC.collapsed<-function(init,nSamples,N.MC,Thin.Rate,m0,C0,W,sigma2.theta,t.T,n,K,PI.G_Z.0,Q.gamma_zeta,N,y){
   unlink(paste("~/DGLM/Reproducibility/Init_",init,sep=""), recursive=T)
   dir.create(paste("~/DGLM/Reproducibility/Init_",init,sep=""))
   #output the names of columns for each of the stored sample files only once at the beginning
@@ -6,9 +6,10 @@ MCMC.collapsed<-function(init,nSamples,N.MC,Thin.Rate,m0,C0,sigma2.theta,t.T,n,K
   for(t in 1:t.T){
     write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv", sep=""), x = t(names(y[[t]])), sep = ",", col.names=F)
     write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Zeta_",t,"_colnames.csv", sep=""), x = t(names(y[[t]])), sep = ",", col.names = F)
+    write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Yhat_",t,"_colnames.csv", sep=""), x = t(names(y[[t]])), sep = ",", col.names = F)
   }
   
-  Theta = Theta.Initialize(m0,C0,sqrt(sigma2.theta),t.T)
+  Theta = Theta.Initialize(m0,C0,sigma2.theta,t.T)
   Gamma = Gamma.Initialize(m0,K,N,y)
   Zeta = Zeta.Initialize(n,0,y)
   FF = F_construct(n,K,t.T,Gamma,Zeta)
@@ -19,9 +20,9 @@ MCMC.collapsed<-function(init,nSamples,N.MC,Thin.Rate,m0,C0,sigma2.theta,t.T,n,K
     Omega = Omega.step.collapsed(FF,Theta,N,n,t.T)
     Z = Z_construct(N,Omega,y)
     
-    TY = Theta.FFBS.collapsed(n,m0,C0,FF,N,Omega,Kappa)
+    TY = Theta.FFBS.collapsed(n,m0,C0,W,FF,N,Omega,Kappa)
     Theta = TY[[1]]
-    
+    Y.hat = TY[[2]]
     GammaZeta = GammaZeta.FFBS.collapsed(n,K,PI.G_Z.0,Q.gamma_zeta,Theta,N,Omega,Z)
     Gamma = GammaZeta[[1]]
     Zeta = GammaZeta[[2]]
@@ -33,7 +34,7 @@ MCMC.collapsed<-function(init,nSamples,N.MC,Thin.Rate,m0,C0,sigma2.theta,t.T,n,K
       for(t in 1:t.T){
         write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Gamma_",t,".csv", sep=""), x = t(Gamma[[t]]), sep = ",", append = T, col.names=F)
         write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Zeta_",t,".csv", sep=""), x = t(Zeta[[t]]), sep = ",", append = T, col.names = F)
-        
+        write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Yhat_",t,".csv", sep=""), x = t(Y.hat[[t]]), sep = ",", append = T, col.names = F)
       }# end of time loop for writing
       
     }# end of logic for m>B

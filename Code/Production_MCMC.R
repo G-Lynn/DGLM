@@ -28,14 +28,14 @@ Post.Mean.Gamma = Post.Err.Gamma = list()
 #nSamples = 1e5
 
 #for 100 players
-B =5e4
-Thin.Rate=10
-nSamples = 5e4
+#B =5e4
+#Thin.Rate=10
+#nSamples = 5e4
 
 #for 500 players
-#B = 2.5e4
-#Thin.Rate = 5
-#nSamples = 1e4
+B = 2.5e4
+Thin.Rate = 5
+nSamples = 1e4
 
 #for 1000 players
 #B = 2.5e4
@@ -44,9 +44,9 @@ nSamples = 5e4
 
 
 N.MC = B+Thin.Rate*nSamples
-sigma2.init = rep( seq(from = .01, to = .1, length = 3), each = 2)
+sigma2.init = 2*diag(W)
 
-mclapply(1:6, function(init) MCMC.collapsed(init,nSamples,N.MC,Thin.Rate,m0,C0,sigma2.theta = sigma2.init[init],t.T,n,K,PI.G_Z.0,Q.gamma_zeta,N,y), mc.cores = 6 )
+mclapply(11:15, function(init) MCMC.collapsed(init,nSamples,N.MC,Thin.Rate,m0,C0,W,sigma2.theta = sigma2.init,t.T,n,K,PI.G_Z.0,Q.gamma_zeta,N,y), mc.cores = 6 )
 
 
 

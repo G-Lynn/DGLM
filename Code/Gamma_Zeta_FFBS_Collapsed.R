@@ -6,7 +6,7 @@ GammaZeta.FFBS.collapsed<-function(n,K,PI.G_Z.0, Q.gamma_zeta, Theta, N, Omega, 
   for(t in t.1:t.T){# Begin Forward Filtering
     if(n[t]==0){
       if(t==t.1){
-        p.GammaZeta[[t]] = PI.G_Z.0
+        p.GammaZeta[[t]] = PI.G_Z.0[t,]
       }else{
         p.GammaZeta[[t]] = p.GammaZeta[[t-1]]
       }
@@ -33,13 +33,14 @@ GammaZeta.FFBS.collapsed<-function(n,K,PI.G_Z.0, Q.gamma_zeta, Theta, N, Omega, 
       }
       
       if(t==t.1){
-        p.GammaZeta[[t]] = log( as.numeric( PI.G_Z.0%*%Q.gamma_zeta[[t]]) ) + p.GammaZeta[[t]]
+        p.GammaZeta[[t]] = log( as.numeric( PI.G_Z.0[t,]%*%Q.gamma_zeta[[t]]) ) + p.GammaZeta[[t]]
       }else{
         Ret.Players.t = Players.t[is.element(Players.t, Players.tm1)] 
         New.Players.t = Players.t[!is.element(Players.t, Players.tm1)]
         
         if( length(New.Players.t) > 0){
-          p.GammaZeta[[t]][New.Players.t, ] = log( as.numeric( PI.G_Z.0%*%Q.gamma_zeta[[t]]) )  +  p.GammaZeta[[t]][New.Players.t, ]
+          #I should really sample from the marginal not the prior for new players given their age
+          p.GammaZeta[[t]][New.Players.t, ] = log( as.numeric( PI.G_Z.0[t,]%*%Q.gamma_zeta[[t]]) )  +  p.GammaZeta[[t]][New.Players.t, ]
         }
         
         if( length(Ret.Players.t) > 0){

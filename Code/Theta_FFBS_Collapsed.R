@@ -1,4 +1,4 @@
-Theta.FFBS.collapsed<-function(n,m0,C0,FF,N,Omega,Kappa){
+Theta.FFBS.collapsed<-function(n,m0,C0,W,FF,N,Omega,Kappa){
   
   # store m[[t]]
   # store C[[t]]
@@ -6,7 +6,6 @@ Theta.FFBS.collapsed<-function(n,m0,C0,FF,N,Omega,Kappa){
   t.1 = min(which(n>0))
   K = dim(m0)[1]
   
-  delta = .85
   y.hat = mu.hat = index = list()
   
   for(t in t.1:t.T){
@@ -36,12 +35,12 @@ Theta.FFBS.collapsed<-function(n,m0,C0,FF,N,Omega,Kappa){
         m[,t] = m0
         a[,t] = m0
         C[[t]] = C0
-        R[[t]] = (1/delta) * C0
+        R[[t]] = C0 + W
       }else{
         m[,t] = m[,t-1]
         a[,t] = m[,t-1]
         C[[t]] = C[[t-1]]
-        R[[t]] = (1/delta) * C[[t-1]]
+        R[[t]] = C[[t-1]] + W
       }
       next
     }else{
@@ -53,16 +52,16 @@ Theta.FFBS.collapsed<-function(n,m0,C0,FF,N,Omega,Kappa){
         a[,t] = m[,t-1]
         C.star = C[[t-1]]
       }
-      #Now tune for delta
+      
       C.inv = solve(C.star)
     
       
-      R[[t]] = (1/delta)*C.star
-      R.inv[[t]] = delta*C.inv
+      R[[t]] = C.star + W
+      R.inv[[t]] = solve(R[[t]])
   
       C[[t]] =solve( t( FF[[t]] ) %*% diag(Omega[[t]]) %*% FF[[t]] + R.inv[[t]] )     
       m[,t] = C[[t]]%*%( t(FF[[t]])%*%Kappa[[t]] + R.inv[[t]]%*%a[,t] )
-      
+      #Note that diag(Omega[[t]])%*%alpha[[t]] = Kappa[[t]] So I omit the matrix multiplication
       
       theta.t = matrix(mvrnorm(1,mu = a[,t], Sigma = R[[t]]), ncol = 1)
       
@@ -78,12 +77,12 @@ Theta.FFBS.collapsed<-function(n,m0,C0,FF,N,Omega,Kappa){
     if(t == t.T){
       Theta[,t] = mvrnorm(1, mu = m[,t], Sigma = C[[t]])
     }else{ 
-      b = m[,t] + C[[t]]%*%R.inv[[t+1]]%*%(Theta[,t+1] - a[,t+1])
-      B = C[[t]] - C[[t]]%*%R.inv[[t+1]]%*%C[[t]]
+      b = m[,t] + C[[t]]%*%R.inv[[t+1]]%*%(Theta[,t+1] - a[,t+1]) #this is equivalent to the form in the paper
+      B = C[[t]] - C[[t]]%*%R.inv[[t+1]]%*%C[[t]] ## this holds by Woodbury matrix identity
       Theta[,t] = mvrnorm(1, b, B)
     }
   }# End of Backward Sampling
   
-  return(list(Theta, y.hat, mu.hat,delta) )
+  return(list(Theta, y.hat, mu.hat) )
 }# End of Theta.FFBS function
 
