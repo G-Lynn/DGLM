@@ -30,8 +30,12 @@ MCMC.collapsed<-function(init,nSamples,N.MC,Thin.Rate,m0,C0,W,sigma2.theta,t.T,n
     FF = F_construct(n,K,t.T,Gamma,Zeta)
     
     if(m>B & m%%Thin.Rate==0){
+      #order.index = apply(Theta[1:K,],2,order)
+      #Theta.ordered = rbind(apply(Theta[1:K,],2,sort),Theta[K+1,])
       write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Theta.csv", sep=""), x = Theta, sep = ",", append = T, col.names = F )
       for(t in 1:t.T){
+        #Gamma.ordered = sapply(1:n[t], function(i) order.index[Gamma[[t]][i],t] )
+        #names(Gamma.ordered) = names(Gamma[[t]])
         write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Gamma_",t,".csv", sep=""), x = t(Gamma[[t]]), sep = ",", append = T, col.names=F)
         write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Zeta_",t,".csv", sep=""), x = t(Zeta[[t]]), sep = ",", append = T, col.names = F)
         write.table(file = paste("~/DGLM/Reproducibility/Init_",init,"/Yhat_",t,".csv", sep=""), x = t(Y.hat[[t]]), sep = ",", append = T, col.names = F)

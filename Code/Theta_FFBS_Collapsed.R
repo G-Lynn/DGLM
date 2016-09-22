@@ -18,6 +18,7 @@ Theta.FFBS.collapsed<-function(n,m0,C0,W,FF,N,Omega,Kappa){
   
   #These quantities will have fixed dimension throughout regardless of Gamma assignment
   Theta = matrix(nrow = K, ncol = t.T)
+  Theta[K,] = -1
   m     = matrix(nrow = K, ncol = t.T)
   a     = matrix(nrow = K, ncol = t.T) 
   
@@ -75,14 +76,16 @@ Theta.FFBS.collapsed<-function(n,m0,C0,W,FF,N,Omega,Kappa){
   
   for(t in t.T:t.1){# Backward Sampling
     if(t == t.T){
+      #while(Theta[K,t]<.3) Theta[,t] = mvrnorm(1, mu = m[,t], Sigma = C[[t]])
       Theta[,t] = mvrnorm(1, mu = m[,t], Sigma = C[[t]])
     }else{ 
       b = m[,t] + C[[t]]%*%R.inv[[t+1]]%*%(Theta[,t+1] - a[,t+1]) #this is equivalent to the form in the paper
       B = C[[t]] - C[[t]]%*%R.inv[[t+1]]%*%C[[t]] ## this holds by Woodbury matrix identity
+      #while(Theta[K,t]<.3) Theta[,t] = mvrnorm(1, b, B)
       Theta[,t] = mvrnorm(1, b, B)
     }
   }# End of Backward Sampling
-  
+  Theta[1:(K-1),] = apply(Theta[1:(K-1),],2,sort)  
   return(list(Theta, y.hat, mu.hat) )
 }# End of Theta.FFBS function
 

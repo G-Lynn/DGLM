@@ -3,6 +3,18 @@ GammaZeta.FFBS.collapsed<-function(n,K,PI.G_Z.0, Q.gamma_zeta, Theta, N, Omega, 
   t.1 = min(which(n>0))
   p.GammaZeta = list()
   
+  # Re-label the prior based on the Theta specific ordering.  
+  #order.index = apply(Theta[1:K,],2,order)
+  #for(t in 1:t.T){
+  #  PI.G_Z.0[t,1:K] = PI.G_Z.0[t,order.index[,t]]
+  #  PI.G_Z.0[t,(K+1):(2*K)] = PI.G_Z.0[t,(K+order.index[,t])]
+    
+  #  Q.gamma_zeta[[t]][1:K,1:K] = Q.gamma_zeta[[t]][order.index[,t],order.index[,t]]
+  #  Q.gamma_zeta[[t]][1:K,(K+1):(2*K)] = Q.gamma_zeta[[t]][order.index[,t],(K+order.index[,t])]
+  #  Q.gamma_zeta[[t]][(K+1):(2*K),1:K] = Q.gamma_zeta[[t]][(K+order.index[,t]),order.index[,t]]
+  #  Q.gamma_zeta[[t]][(K+1):(2*K),(K+1):(2*K)] = Q.gamma_zeta[[t]][(K+order.index[,t]),(K+order.index[,t])]
+  #}
+  
   for(t in t.1:t.T){# Begin Forward Filtering
     if(n[t]==0){
       if(t==t.1){
@@ -21,9 +33,9 @@ GammaZeta.FFBS.collapsed<-function(n,K,PI.G_Z.0, Q.gamma_zeta, Theta, N, Omega, 
       
       for(k in 1:(2*K)){
         if(k<=K){
-          p.GammaZeta[[t]][,k] = dnorm( Z[[t]], mean = F_kzt(Players.t,K,k,0) %*% Theta[,t] , sd = sqrt( 1/Omega[[t]] ), log=T )
+          p.GammaZeta[[t]][,k] = dnorm( Z[[t]], mean =  F_kzt(Players.t,K,k,0) %*% Theta[,t] , sd = sqrt( 1/Omega[[t]] ), log=T )
         }else{
-          p.GammaZeta[[t]][,k] = dnorm( Z[[t]], mean = F_kzt(Players.t,K,(k-K),1) %*% Theta[,t] , sd = sqrt( 1/Omega[[t]] ), log=T ) 
+          p.GammaZeta[[t]][,k] = dnorm( Z[[t]], mean = F_kzt(Players.t,K,k-K,1) %*% Theta[,t] , sd = sqrt( 1/Omega[[t]] ), log=T ) 
         }
       }     
       
@@ -33,23 +45,25 @@ GammaZeta.FFBS.collapsed<-function(n,K,PI.G_Z.0, Q.gamma_zeta, Theta, N, Omega, 
       }
       
       if(t==t.1){
-        p.GammaZeta[[t]] = log( as.numeric( PI.G_Z.0[t,]%*%Q.gamma_zeta[[t]]) ) + p.GammaZeta[[t]]
+        p.GammaZeta[[t]] = matrix(rep(log( as.numeric( PI.G_Z.0[t,]%*%Q.gamma_zeta[[t]]) ), n[t]), nrow = n[t], byrow=T) + p.GammaZeta[[t]]
+
       }else{
         Ret.Players.t = Players.t[is.element(Players.t, Players.tm1)] 
         New.Players.t = Players.t[!is.element(Players.t, Players.tm1)]
-        
-        if( length(New.Players.t) > 0){
+        nNew.t = length(New.Players.t)
+        nRet.t = length(Ret.Players.t)
+        if(nNew.t > 0){
           #I should really sample from the marginal not the prior for new players given their age
-          p.GammaZeta[[t]][New.Players.t, ] = log( as.numeric( PI.G_Z.0[t,]%*%Q.gamma_zeta[[t]]) )  +  p.GammaZeta[[t]][New.Players.t, ]
+          p.GammaZeta[[t]][New.Players.t, ] = matrix( rep(log( as.numeric( PI.G_Z.0[t,]%*%Q.gamma_zeta[[t]]) ), nNew.t ), nrow = nNew.t, byrow=T)  +  p.GammaZeta[[t]][New.Players.t, ]
         }
         
-        if( length(Ret.Players.t) > 0){
-          p.GammaZeta[[t]][Ret.Players.t, ] = log(p.GammaZeta[[t-1]][Ret.Players.t, ]%*%Q.gamma_zeta[[t]]) + p.GammaZeta[[t]][Ret.Players.t, ]
+        if( nRet.t > 0){
+          p.GammaZeta[[t]][Ret.Players.t, ] = log(p.GammaZeta[[t-1]][Ret.Players.t, ]%*%Q.gamma_zeta[[t]])+ p.GammaZeta[[t]][Ret.Players.t, ]
         }
         
       }
-      a = max(p.GammaZeta[[t]])
       
+      a = apply(p.GammaZeta[[t]],1,max)
       p.GammaZeta[[t]] = p.GammaZeta[[t]] - a - log( apply( exp(p.GammaZeta[[t]]-a),1,sum) )
       p.GammaZeta[[t]] = exp(p.GammaZeta[[t]])
       

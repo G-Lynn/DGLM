@@ -1,6 +1,6 @@
 # EDA for Prior. 
 rm(list=ls())
-load("~/DGLM/Data/AgeAlignment.RData")
+load("~/DGLM/Data/AgeAlignmentSmall.RData")
 library(MASS)
 library(ggplot2)
 library(reshape2)
@@ -22,7 +22,7 @@ for(t in 1:n.T){
 ABs = unlist(AB)
 
 for(t in 1:n.T) n[t] = length(Age.Alignment[[t]])
-Age = 17:(17+n.T-1)
+Age = 18+(1:n.T)
 
 Age.names = as.character(Age)
 Players.df = data.frame(Players = n, Age = as.factor(Age.names))
@@ -33,14 +33,14 @@ dev.off()
 
 
 ## Priors for individual ability class levels
-K = 5
-#PI.0 = seq(from = .015, to = .065, len = K)
-PI.0 = seq(from = .005, to = .065, len = K)
-PI.0 = c(PI.0)
-m0 = log( PI.0 / (1-PI.0 ) )
+K = 15
+m0 = seq(from = -4.5, to = -2.25, len = K)
+PI.0 = 1/(1+exp(-m0))
 
-beta = 1/3
-#7.5 seems to work well
+
+
+beta = 2/10 #1/100
+
 sigma2 = rep(NA,K)
 for(k in 1:K){
   delta.m = (m0[k+1]-m0[k])
@@ -58,7 +58,7 @@ for(k in 1:K ) Eta_Norm[,(k+1)] = dnorm(eta,m0[k], sd = sqrt(sigma2[k]) )
 Eta_Norm_Melted = melt(Eta_Norm, id="Eta")
 names(Eta_Norm_Melted)[2:3] = c("Class", "Density")
 
-pdf("~/Dropbox/GT_2015/Figures/Component_Priors.pdf")
+png("~/Dropbox/GT_2015/Figures/Component_Priors.png")
 ggplot(data=Eta_Norm_Melted, aes(x=Eta, y=Density, colour=Class) ) +
   geom_line(size = 2)+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -78,10 +78,10 @@ sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
 
  
-pdf("~/Dropbox/GT_2015/Figures/Component_Priors_Probability.pdf")
+png("~/Dropbox/GT_2015/Figures/Component_Priors_Probability.png")
 m <-ggplot(data = sa)
 m + geom_density(aes(x = values, colour = Class), size = 2 ) +
-  xlim (0,.15) +
+  xlim (0,.2) +
   xlab("Mu")+
   ylab("Density")+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"))
@@ -92,16 +92,16 @@ sa <- stack(as.data.frame(Y_0) )
 sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
 
-pdf("~/Dropbox/GT_2015/Figures/Component_Priors_Y.pdf")
+png("~/Dropbox/GT_2015/Figures/Component_Priors_Y.png")
 ggplot(sa, aes(values, fill = Class)) + geom_histogram(alpha = 0.6, aes(y = ..density..), position = 'identity')+
   xlab("Home runs")+
   ylab("Density")+
-  xlim(0,70)+
+  xlim(0,100)+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"))
 dev.off()
 
 m0_PED = .4
-sigma2_PED = .02
+sigma2_PED = .001 # .001
 
 Eta_Norm = matrix(0,nrow = nSamples, ncol = (K+1) )
 colnames(Eta_Norm) = c("Eta", as.character(1:K) )
@@ -111,7 +111,7 @@ for(k in 1:K ) Eta_Norm[,(k+1)] = dnorm(eta,m0[k]+m0_PED, sd = sqrt(sigma2[k] + 
 Eta_Norm_Melted = melt(Eta_Norm, id="Eta")
 names(Eta_Norm_Melted)[2:3] = c("Class", "Density")
 
-pdf("~/Dropbox/GT_2015/Figures/Component_Priors_PED.pdf")
+png("~/Dropbox/GT_2015/Figures/Component_Priors_PED.png")
 ggplot(data=Eta_Norm_Melted, aes(x=Eta, y=Density, colour=Class) ) +
   geom_line(size = 2)+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -129,10 +129,10 @@ colnames(mu_0) = as.character(1:K)
 sa <- stack(as.data.frame(mu_0) )
 sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
-pdf("~/Dropbox/GT_2015/Figures/Component_Priors_Probability_PED.pdf")
+png("~/Dropbox/GT_2015/Figures/Component_Priors_Probability_PED.png")
 m <-ggplot(data = sa)
 m + geom_density(aes(x = values, colour = Class, group = Class), size = 2 ) +
-  xlim (0,.15) +
+  xlim (0,.2) +
   xlab("Mu")+
   ylab("Density")+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"))
@@ -143,11 +143,11 @@ sa <- stack(as.data.frame(Y_0) )
 sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
 
-pdf("~/Dropbox/GT_2015/Figures/Component_Priors_Y_PED.pdf")
+png("~/Dropbox/GT_2015/Figures/Component_Priors_Y_PED.png")
 ggplot(sa, aes(values, fill = Class)) + geom_histogram(alpha = 0.6, aes(y = ..density..), position = 'identity')+
   xlab("Home runs")+
   ylab("Density")+
-  xlim(0,70) +
+  xlim(0,100) +
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"))
 dev.off()
 
@@ -199,8 +199,8 @@ dev.off()
 
 
 pi.0 = matrix(c(1,0),nrow = 1)
-rho =  1/36 #1 starting player for every third team becomes a steroid user
-stickiness_zeta = 8/9 # 8 starters out of 9 remain steroid users. 
+rho = 1/50 #1/25 #1/36 #1 starting player for every third team becomes a steroid user
+stickiness_zeta = 2/3 #8/9 # 8 starters out of 9 remain steroid users. 
 #this combination leads to a stationary distribution of P(PED = 1) = .2.  Nice.  
 Q.z = Q.PED(stickiness_zeta,rho)
 Pi.PED = matrix(nrow = 2, ncol = n.T)
@@ -227,23 +227,31 @@ m0 = matrix(m0,ncol = 1)
 C0 = diag(sigma2)
 
 mu = list()
-PI.G.0 = c(1, rep(0,K-1))
+#PI.G.0 = c(1,rep(0,K-1))
+##This is where things get changed for priors!
+PI.G.0 = rep(NA,K)
+#PI.G.0 = c(1,rep(0,K-1))
+k.0 = 7
+for(k in 1:K) PI.G.0[k] = exp(-1/(2*6)*(k.0-k)^2)
+PI.G.0 = PI.G.0 / sum(PI.G.0)
 
 m0.names = as.character(round( exp(m0[1:K])/(1+exp(m0[1:K])),3 ))
-PI.G.df = data.frame(Probability = PI.G.0, Rates = as.factor(m0.names))
+m0.names = 1:K
+PI.G.df = data.frame(Probability = PI.G.0, Class = as.factor(m0.names))
 
 pdf("~/Dropbox/GT_2015/Figures/P_Gamma_0.pdf")
-ggplot(data = PI.G.df, aes(x=Rates,y=Probability)) + geom_bar(stat="identity") +   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
+ggplot(data = PI.G.df, aes(x=Class,y=Probability)) + geom_bar(stat="identity") +   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
 
 
 #200 worked previously.  
-alpha = 175
-decay.rate = 1.5
+alpha = 5  #5
+decay.rate = 2 #2
 
 Q = list()
 for(t in 1:n.T){
-    Q[[t]] = Q.age(Age[t],alpha, decay.rate, K, PI.0) 
+    #Q[[t]] = Q.age(Age[t],alpha, decay.rate, K, PI.0) 
+    Q[[t]] = Q.age(Age[t],alpha, decay.rate, K, m0[1:K])
 }
 
 
@@ -256,8 +264,10 @@ Mu =Mu.PED = Mu.Clean = matrix(nrow = nSamples, ncol = n.T)
 Y = Y.Clean = matrix(nrow = nSamples, ncol = n.T)
 gamma.0 = eta.0 = mu.0 = rep(NA, nSamples)
 
-#W = diag(c(.005, .005, .0025, .001, .001))
-W = diag(c(.01, .005, .005, .0025, .001, .001))
+
+W = .5*C0
+#W = .01*diag(K+1)
+print(W)
 theta.k = list() 
 for(k in 1:K) theta.k[[k]] = matrix(nrow = nSamples, ncol = n.T)
 
@@ -330,7 +340,7 @@ dev.off()
 
 
 colnames(Mu) = as.character(Age)
-Age.sub = as.character(c(17,seq(from = 20, to = 45, len = 6)) )
+Age.sub = as.character(seq(from = 20, to = 45, len = 6) )
 Mu.sub = Mu[,Age.sub]
 
 sa <- stack(as.data.frame(Mu.sub) )
@@ -339,7 +349,6 @@ sa$Age = factor(sa$Age)
 pdf("~/Dropbox/GT_2015/Figures/Mixture_Prior_Rate_Time.pdf")
 m <-ggplot(data = sa)
 m + geom_density(aes(x = values, colour = Age, group = Age), size = 1.5) +
-  xlim (0,.1) +
   xlab("Mu")+
   ylab("Density")+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"))
@@ -368,14 +377,14 @@ for(t in 1:n.T){
   }
 }
 
-rownames(Prob.Gamma) = as.character(1:K)
+rownames(Prob.Gamma) = 1:K
 sa <- stack(as.data.frame(t(Prob.Gamma)))
-names(sa) = c("values", "Class")
+sa$Class = factor(rep(1:K,each = n.T))
 sa$Age <- rep( Age, ncol(t(Prob.Gamma)) )
 
 pdf("~/Dropbox/GT_2015/Figures/Prob_Gamma.pdf")
 ggplot(data = sa, aes(x=Age))+
-  geom_line(aes(Age, y=values, group = Class, colour = Class), size = 2 )+
+  geom_line(aes(Age, y=values, colour = Class), size = 2 )+
   xlab("Age")+
   ylab( "Membership Proportions")+
   theme( axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -400,7 +409,7 @@ names(sa) = c("Homeruns", "Age")
 
 pdf("~/Dropbox/GT_2015/Figures/Marginal_Y_Clean.pdf")
 p <- ggplot(sa, aes(Age, Homeruns))
-p + geom_boxplot(fill="gray") + ylim(0,90)+
+p + geom_boxplot(fill="gray") + ylim(0,100)+
 xlab("Age")+
 ylab("Home runs")+
 theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -429,7 +438,3 @@ ggplot(data = DF, aes(x=Age, colour = Status ))+
   ylab("Mu")+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
-
-#Goals for code:
-
-

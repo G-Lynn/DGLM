@@ -28,8 +28,7 @@ Data = merge(Data, bio, by="playerID", all.x=F, all.y=F)
 Data = cbind(Data, Age=(Data$yearID-Data$birthYear) )
 Data = Data[,-6]
 Data = merge(Data, Teams, by=c("yearID", "teamID") )
-Data = merge(Data, Salary, by=c("playerID","yearID","lgID","teamID"))
-
+#Data = merge(Data, Salary, by=c("playerID","yearID","lgID","teamID"))
 #Data = Data[,c("playerID", "yearID", "teamID","lgID", "HR","AB","Age", "park","salary","height","weight","bats")]
 Data = Data[,c("playerID", "yearID", "teamID","lgID", "HR","AB","Age", "park","height","weight","bats")]
 
