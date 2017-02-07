@@ -3,22 +3,21 @@ library(MASS)
 library(parallel)
 library(BayesLogit)
 library(Rcpp)
-#load("~/DGLM/Data/Raw_Data_Prediction.RData")
-load("~/DGLM/Data/Raw_Data.RData")
-source("~/DGLM/Code/Theta_FFBS_Collapsed.R")
-source("~/DGLM/Code/Gamma_Zeta_FFBS_Collapsed.R")
-#source("~/DGLM/Code/Omega_Step_Collapsed.R")
-source("~/DGLM/Code/Omega_Step_Collapsed_Cpp.R")
-sourceCpp("~/DGLM/Code/rpgApprox.cpp")
-source("~/DGLM/Code/F_Construct.R")
-source("~/DGLM/Code/F_kzt.R")
-source("~/DGLM/Code/Z_Construct.R")
-source("~/DGLM/Code/Zeta_Initialize.R")
-source("~/DGLM/Code/Gamma_Initialize.R")
-source("~/DGLM/Code/Theta_Initialize.R")
-source("~/DGLM/Code/Collapsed_MCMC_Production.R")
-#The goal here is to determine if conditioning on the true values of Theta and Eta
-#is it possible for me to recover the true Gamma values in a reproducible way
+#load("~/sDGLM/Data/Raw_Data_Prediction.RData")
+load("~/sDGLM/Data/Raw_Data.RData")
+source("~/sDGLM/Code/Theta_FFBS_Collapsed.R")
+source("~/sDGLM/Code/Gamma_Zeta_FFBS_Collapsed.R")
+#source("~/sDGLM/Code/Omega_Step_Collapsed.R")
+source("~/sDGLM/Code/Omega_Step_Collapsed_Cpp.R")
+sourceCpp("~/sDGLM/Code/rpgApprox.cpp")
+source("~/sDGLM/Code/F_Construct.R")
+source("~/sDGLM/Code/F_kzt.R")
+source("~/sDGLM/Code/Z_Construct.R")
+source("~/sDGLM/Code/Zeta_Initialize.R")
+source("~/sDGLM/Code/Gamma_Initialize.R")
+source("~/sDGLM/Code/Theta_Initialize.R")
+source("~/sDGLM/Code/Collapsed_MCMC_Production.R")
+
 Kappa = list()
 for(t in 1:t.T) Kappa[[t]] = y[[t]] - .5*N[[t]]
 
@@ -29,7 +28,7 @@ Post.Mean.Gamma = Post.Err.Gamma = list()
 B = 1000 #1000 #20000
 Thin.Rate = 1 #10
 nSamples = 1000 #1000 #10000
-INIT_base = 110
+INIT_base = 0
 inits = INIT_base + 1 
 print(inits)
 

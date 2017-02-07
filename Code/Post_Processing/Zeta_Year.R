@@ -11,7 +11,7 @@ init = 1 + INIT_base
 
 #what I need to do is organize tables by year.  
 
-Data = read.csv("~/Desktop/sDGLM-master/Lahman/DLM_data.csv")
+Data = read.csv("~/Dropbox/Baseball/Lahman/DLM_data.csv")
 Zeta_Year = list()
 Year_Index = 1990:2013
 nYears = length(Year_Index)
