@@ -2,8 +2,8 @@ rm(list=ls())
 library(MASS)
 library(Matrix)
 library(xlsx)
-Data = read.csv("~/sDGLM/Lahman/Data_modern.csv", header=T,stringsAsFactor=F)
-Jensen_118 = read.xlsx("~/sDGLM/Lahman/Jensen_118.xlsx", sheetIndex=1)
+Data = read.csv("~/sDGLM-master/Lahman/Data_modern.csv", header=T,stringsAsFactor=F)
+Jensen_118 = read.xlsx("~/sDGLM-master/Lahman/Jensen_118.xlsx", sheetIndex=1)
 Jensen_118 = as.character(Jensen_118[,1])
 
 #This eliminates the second team that a player plays for and the players who have more than one entry per year for a single team
@@ -42,5 +42,5 @@ for(i in 1:Age.length){
   Age.Alignment[[i]] = Age.Player
 }
 
-save(file = "~/sDGLM/Data/AgeAlignment_modern.RData", Age.Alignment)
+save(file = "~/sDGLM-master/Data/AgeAlignment_modern.RData", Age.Alignment)
 
