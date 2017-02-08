@@ -12,7 +12,7 @@ for(t in 1:n.T){
 
 Data.df = data.frame(ABs, HRs, Rate = HRs/ABs, Age = factor(Ages) )
 
-pdf("~/Dropbox/GT_2015/Figures/Marginal_Y_Obs.pdf")
+pdf("~/sDGLM-master/Figures/Marginal_Y_Obs.pdf")
 p <- ggplot(Data.df, aes(Age, HRs))
 p + geom_boxplot(fill="gray") + ylim(0,100)+
   xlab("Age")+
@@ -21,7 +21,7 @@ p + geom_boxplot(fill="gray") + ylim(0,100)+
 dev.off()
 
 
-pdf("~/Dropbox/GT_2015/Figures/Marginal_Rate_Obs.pdf")
+pdf("~/sDGLM-master/Figures/Marginal_Rate_Obs.pdf")
 p <- ggplot(Data.df, aes(Age, Rate))
 p + geom_boxplot(fill="gray") + ylim(0,.3)+
   xlab("Age")+

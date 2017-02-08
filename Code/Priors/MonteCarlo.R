@@ -1,12 +1,13 @@
 # EDA for Prior. 
 rm(list=ls())
-load("~/sDGLM/Data/AgeAlignment_modern.RData")
+dir = "~/sDGLM-master/"
+load(paste(dir,"Data/AgeAlignment_modern.RData",sep=""))
 library(MASS)
 library(ggplot2)
 library(reshape2)
 
-source("~/sDGLM/Code/Q_Age.R")
-source("~/sDGLM/Code/Q_AP.R")
+source(paste(dir,"Code/Q_Age.R",sep=""))
+source(paste(dir,"Code/Q_AP.R",sep=""))
 n.T = length(Age.Alignment)
 n = rep(NA,n.T)
 nSamples = 10000
@@ -15,7 +16,7 @@ AB = list()
 for(t in 1:n.T){
   AB[[t]] = rep(NA, length(Age.Alignment[[t]]) )
   for(i in 1:length(Age.Alignment[[t]]) ){
-    AB[[t]][i] = as.numeric( Age.Alignment[[t]][[i]][[2]][1] )
+    AB[[t]][i] = as.numeric( Age.Alignment[[t]][[i]]$Response$AB )
   }
 }
 
@@ -29,7 +30,7 @@ Age = Age_1:Age_N
 Age.names = as.character(Age)
 Players.df = data.frame(Players = n, Age = as.factor(Age.names))
 
-pdf("~/sDGLM/Figures/nPlayers_Age.pdf")
+pdf(paste(dir,"Figures/nPlayers_Age.pdf",sep=""))
 ggplot(data = Players.df, aes(x=Age,y=Players)) + geom_bar(stat="identity") + xlab("Age") + ylab("# Players") + theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
 
@@ -61,7 +62,7 @@ for(k in 1:K ) Eta_Norm[,(k+1)] = dnorm(eta,m0[k], sd = sqrt(sigma2[k]) )
 Eta_Norm_Melted = melt(Eta_Norm, id="Eta")
 names(Eta_Norm_Melted)[2:3] = c("Class", "Density")
 
-png("~/sDGLM/Figures/Component_Priors.png")
+png(paste(dir,"Figures/Component_Priors.png",sep=""))
 ggplot(data=Eta_Norm_Melted, aes(x=Eta, y=Density, colour=Class) ) +
   geom_line(size = 2)+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -81,7 +82,7 @@ sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
 
  
-png("~/sDGLM/Figures/Component_Priors_Probability.png")
+png(paste(dir,"Figures/Component_Priors_Probability.png",sep=""))
 m <-ggplot(data = sa)
 m + geom_density(aes(x = values, colour = Class), size = 2 ) +
   xlim (0,.2) +
@@ -95,7 +96,7 @@ sa <- stack(as.data.frame(Y_0) )
 sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
 
-png("~/sDGLM/Figures/Component_Priors_Y.png")
+png(paste(dir,"Figures/Component_Priors_Y.png",sep=""))
 ggplot(sa, aes(values, fill = Class)) + geom_histogram(alpha = 0.6, aes(y = ..density..), position = 'identity')+
   xlab("Home runs")+
   ylab("Density")+
@@ -114,7 +115,7 @@ for(k in 1:K ) Eta_Norm[,(k+1)] = dnorm(eta,m0[k]+m0_AP, sd = sqrt(sigma2[k] + s
 Eta_Norm_Melted = melt(Eta_Norm, id="Eta")
 names(Eta_Norm_Melted)[2:3] = c("Class", "Density")
 
-png("~/sDGLM/Figures/Component_Priors_AP.png")
+png(paste(dir,"Figures/Component_Priors_AP.png",sep=""))
 ggplot(data=Eta_Norm_Melted, aes(x=Eta, y=Density, colour=Class) ) +
   geom_line(size = 2)+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -132,7 +133,7 @@ colnames(mu_0) = as.character(1:K)
 sa <- stack(as.data.frame(mu_0) )
 sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
-png("~/sDGLM/Figures/Component_Priors_Probability_AP.png")
+png(paste(dir,"Figures/Component_Priors_Probability_AP.png",sep=""))
 m <-ggplot(data = sa)
 m + geom_density(aes(x = values, colour = Class, group = Class), size = 2 ) +
   xlim (0,.2) +
@@ -146,7 +147,7 @@ sa <- stack(as.data.frame(Y_0) )
 sa$Class <- rep( 1:K, each = nrow(mu_0) )
 sa$Class = factor(sa$Class)
 
-png("~/sDGLM/Figures/Component_Priors_Y_AP.png")
+png(paste(dir,"Figures/Component_Priors_Y_AP.png",sep=""))
 ggplot(sa, aes(values, fill = Class)) + geom_histogram(alpha = 0.6, aes(y = ..density..), position = 'identity')+
   xlab("Home runs")+
   ylab("Density")+
@@ -169,7 +170,7 @@ for(i in 1:1000){
 
 MU.AP = data.frame(Eta = eta, Natural = mu, AP = mu.AP.summary[1,], AP.025 = mu.AP.summary[2,], AP.975 = mu.AP.summary[3,] )
 
-pdf("~/sDGLM/Figures/HR_Rate_AP.pdf")
+pdf(paste(dir,"Figures/HR_Rate_AP.pdf",sep=""))
 ggplot(data=MU.AP, aes(x=Eta, colour = Status ) ) +
   geom_line(aes(y=Natural, colour = "Natural"),size = 1)+
   geom_line(aes(y=AP, colour = "AP"), size = 1)+
@@ -187,7 +188,7 @@ AP.975 = mu.AP.summary[3,]-mu
 AP.025 = mu.AP.summary[2,]-mu
 
 MU.AP = data.frame(Eta = eta, AP.Effect, AP.975, AP.025)
-pdf("~/sDGLM/Figures/AP_Effect.pdf")
+pdf(paste(dir,"Figures/AP_Effect.pdf",sep=""))
 ggplot(data=MU.AP, aes(x=Eta) ) +
   geom_line(aes(y=AP.Effect), size = 1, color = "red")+
   geom_line(aes(y=AP.025), size=1, linetype=2, color = "red")+
@@ -215,7 +216,7 @@ for(t in 1:n.T){
 }
 
 PI.AP = data.frame(Age, Probability = Pi.AP[2,])
-pdf("~/sDGLM/Figures/AP_Prob.pdf")
+pdf(paste(dir,"Figures/AP_Prob.pdf",sep=""))
 ggplot(data = PI.AP, aes(Age)) + 
   geom_line(aes(y=Probability), size = 1, color = "dark blue")+
   xlab("Eta")+
@@ -242,7 +243,7 @@ m0.names = as.character(round( exp(m0[1:K])/(1+exp(m0[1:K])),3 ))
 m0.names = 1:K
 PI.G.df = data.frame(Probability = PI.G.0, Class = as.factor(m0.names))
 
-pdf("~/sDGLM/Figures/P_Gamma_0.pdf")
+pdf(paste(dir,"Figures/P_Gamma_0.pdf",sep=""))
 ggplot(data = PI.G.df, aes(x=Class,y=Probability)) + geom_bar(stat="identity") +   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
 
@@ -316,11 +317,11 @@ for(t in 1:n.T){
     }
   }
 }
-save(file = "~/DGLM/Data/Gamma_Zeta_marginal_time.RData", PI.G_Z.0)
+#save(file = paste(dir,"Data/Gamma_Zeta_marginal_time.RData",sep=""), PI.G_Z.0)
 apply(PI.G_Z.0,1,sum)
 
 Eta.df = data.frame(Eta = eta.0)
-pdf("~/sDGLM/Figures/Mixture_Prior_Ability.pdf")
+pdf(paste(dir,"Figures/Mixture_Prior_Ability.pdf",sep=""))
 m <-ggplot(data = Eta.df, aes(x = Eta))
 m + geom_density(size=1.5) +
   xlim (-10,-1.5) +
@@ -330,7 +331,7 @@ m + geom_density(size=1.5) +
 dev.off()
 
 Mu.df = data.frame(Mu = mu.0)
-pdf("~/sDGLM/Figures/Mixture_Prior_Rate.pdf")
+pdf(paste(dir,"Figures/Mixture_Prior_Rate.pdf",sep=""))
 m <-ggplot(data = Mu.df, aes(x = Mu))
 m + geom_density(size=1.5) +
   xlim (0,.1) +
@@ -348,7 +349,7 @@ Mu.sub = Mu[,Age.sub]
 sa <- stack(as.data.frame(Mu.sub) )
 sa$Age <- rep( Age.sub, each = nrow(Mu.sub) )
 sa$Age = factor(sa$Age)
-pdf("~/sDGLM/Figures/Mixture_Prior_Rate_Time.pdf")
+pdf(paste(dir,"Figures/Mixture_Prior_Rate_Time.pdf",sep=""))
 m <-ggplot(data = sa)
 m + geom_density(aes(x = values, colour = Age, group = Age), size = 1.5) +
   xlab("Mu")+
@@ -360,7 +361,7 @@ dev.off()
 sa <- stack(as.data.frame(Mu) )
 sa$Age <- rep( Age, each = nrow(Mu) )
 sa$Age = factor(sa$Age)
-pdf("~/sDGLM/Figures/Marginal_Mu.pdf")
+pdf(paste(dir,"Figures/Marginal_Mu.pdf",sep=""))
 p <- ggplot(sa, aes(ind, values))
 p + geom_boxplot(fill="gray") + ylim(0,.25) + 
 xlab("Age")+
@@ -379,12 +380,26 @@ for(t in 1:n.T){
   }
 }
 
+Zeta_Prob = matrix(nrow = 2, ncol = n.T)
+Gamma_Prob = matrix(nrow = K, ncol = n.T)
+for(t in 1:n.T){
+  if(t==1){
+    Zeta_Prob[,t] = pi.0%*%Q.z
+    Gamma_Prob[,t] = t(PI.G.0)%*%Q[[t]]
+  }else{
+    Zeta_Prob[,t] = t(Zeta_Prob[,t-1])%*%Q.z
+    Gamma_Prob[,t] = t(Gamma_Prob[,t-1])%*%Q[[t]]
+  }
+}
+
+
 rownames(Prob.Gamma) = 1:K
-sa <- stack(as.data.frame(t(Prob.Gamma)))
+rownames(Gamma_Prob) = 1:K
+sa <- stack(as.data.frame(t(Gamma_Prob)))
 sa$Class = factor(rep(1:K,each = n.T))
 sa$Age <- rep( Age, ncol(t(Prob.Gamma)) )
 
-pdf("~/sDGLM/Figures/Prob_Gamma.pdf")
+pdf(paste(dir,"Figures/Prob_Gamma.pdf",sep=""))
 ggplot(data = sa, aes(x=Age))+
   geom_line(aes(Age, y=values, colour = Class), size = 2 )+
   xlab("Age")+
@@ -395,7 +410,7 @@ dev.off()
 
 colnames(Y) = colnames(Y.Clean) = as.character(Age)
 
-pdf("~/sDGLM/Figures/Marginal_Y.pdf")
+pdf(paste(dir,"Figures/Marginal_Y.pdf",sep=""))
 sa <- stack(as.data.frame(Y) )
 names(sa) = c("Homeruns", "Age")
 p <- ggplot(sa, aes(Age, Homeruns))
@@ -409,7 +424,7 @@ dev.off()
 sa <- stack(as.data.frame(Y.Clean) )
 names(sa) = c("Homeruns", "Age")
 
-pdf("~/sDGLM/Figures/Marginal_Y_Clean.pdf")
+pdf(paste(dir,"Figures/Marginal_Y_Clean.pdf",sep=""))
 p <- ggplot(sa, aes(Age, Homeruns))
 p + geom_boxplot(fill="gray") + ylim(0,100)+
 xlab("Age")+
@@ -427,7 +442,7 @@ MU.AP[2:3,] = apply(Mu.AP,2,quantile, probs =c(.025,.975) )
 MU.Clean[2:3,] = apply(Mu.Clean,2,quantile, probs =c(.025,.975) )
 
 DF = data.frame(Age = Age, Mu = MU[1,], Mu.025 = MU[2,], Mu.975 = MU[3,], Mu.AP = MU.AP[1,], Mu.AP.025 = MU.AP[2,], Mu.AP.975=MU.AP[3,], Mu.Clean = MU.Clean[1,], Mu.Clean.025 = MU.Clean[2,], Mu.Clean.975 = MU.Clean[3,])
-pdf("~/sDGLM/Figures/Prior_Age_Curve.pdf")
+pdf(paste(dir,"Figures/Prior_Age_Curve.pdf",sep=""))
 ggplot(data = DF, aes(x=Age, colour = Status ))+
   geom_line(aes(y=Mu, colour = "Stochastic"), size=1.5)+
   geom_line(aes(y=Mu.025, colour = "Stochastic"), size=1, linetype=2)+
