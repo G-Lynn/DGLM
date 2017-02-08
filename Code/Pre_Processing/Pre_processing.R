@@ -1,7 +1,6 @@
 rm(list=ls())
 
-
-setwd("~/sDGLM/Lahman")
+setwd("~/sDGLM-master/Lahman")
 Batting = read.csv("Batting.csv", header=T, stringsAsFactors=F)
 Master = read.csv("Master.csv", header=T, stringsAsFactors=F)
 Fielding = read.csv("Fielding.csv", header=T, stringsAsFactors=F)
