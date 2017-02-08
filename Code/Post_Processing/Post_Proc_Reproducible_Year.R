@@ -229,7 +229,7 @@ for(t in 1:t.T){
 }
 
 #load Data
-Data = read.csv(paste(dir,"Lahman/DLM_Data.csv",sep=""),header=T,stringsAsFactors=F)
+Data = read.csv(paste(dir,"Lahman/Data_modern.csv",sep=""),header=T,stringsAsFactors=F)
 for(i in 1:nPlayers){
   Age_i = unique(Data[Data$playerID == players[i] & Data$Age>20 & Data$Age<=40 ,c("Age")])
   Year_i = unique(Data[Data$playerID == players[i] & Data$Age>20 & Data$Age<=40,c("yearID")])
