@@ -1,17 +1,16 @@
 rm(list = ls())
-t.T = 20 #19 in full sample t.T = 19
+dir = "~/sDGLM-master/"
+t.T = 21 # 21 years in 20:40
 t = 1
 K = 15
 B = 0
 N.MC = 1000
-INIT_base = 100
+INIT_base = 0
 nSims = 8
-Age = 20 + (1:t.T)
+Age = 20 + (0:(t.T-1))
 init = 1 + INIT_base 
 
-#what I need to do is organize tables by year.  
-
-Data = read.csv("~/Dropbox/Baseball/Lahman/DLM_data.csv")
+Data = read.csv(paste(dir,"Lahman/DLM_data.csv",sep=""))
 Zeta_Year = list()
 Year_Index = 1990:2013
 nYears = length(Year_Index)
@@ -23,8 +22,8 @@ for(i in 1:nYears){
 # Age threshold.  The idea is that we know the least about the youngest players.  
 summary(Data$yearID[is.element(Data$playerID,Cohort)])
 for(t in 1:t.T){
-  Names = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
-  zeta = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+  Names = read.csv(paste(dir,"Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
+  zeta = read.csv(paste(dir,"Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
   
   Names = Names[,-1]
   zeta = zeta[,-1]
@@ -67,7 +66,7 @@ traj.1 = Pop_Prob.MC[sample(size = 1, 1:N.MC),]
 traj.2 = Pop_Prob.MC[sample(size = 1, 1:N.MC),]
 
 df = data.frame(Year = Year_Index,  m.1 = m.1, up.1 = up.1, lw.1 = lw.1, traj.1 = traj.1, traj.2 = traj.2 )
-png("~/Desktop/sDGLM-master/Figures/Population_Pct_Year.png")
+png(paste(dir,"Figures/Population_Pct_Year.png",sep=""))
 p1 <- ggplot(df, aes(Year, m.1))+
   geom_point(color = "blue")+
   geom_line(data=df, color = "blue")+

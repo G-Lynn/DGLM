@@ -1,7 +1,8 @@
 rm(list=ls())
-source("~/sDGLM/Code/Q_Age.R")
-source("~/sDGLM/Code/Q_AP.R")
-load("~/sDGLM/Data/AgeAlignment_modern.RData")
+dir = "~/sDGLM-master/"
+source(paste(dir,"Code/Q_Age.R",sep=""))
+source(paste(dir,"Code/Q_AP.R",sep=""))
+load(paste(dir,"Data/AgeAlignment_modern.RData",sep=""))
 
 
 t.T = length(Age.Alignment)
@@ -96,6 +97,6 @@ for(t in 1:t.T){
 
 
 apply(PI.G_Z.0,1,sum)
-save(file = "~/sDGLM/Data/MCMC_Data.RData",t.T,n,Age,K,Q.gamma_zeta,Q.gamma,Q.zeta,PI.G_Z.0,PI.G.0,PI.Z.0,y,N,m0,C0,W)
-#save(file = "~/DGLM/Data/MCMC_Data_Prediction.RData",t.T,n,Age,K,Q.gamma_zeta,Q.gamma,Q.zeta,PI.G_Z.0,PI.G.0,PI.Z.0,y,N,m0,C0,W)
+save(file = paste(dir,"Data/MCMC_Data.RData",sep=""),t.T,n,Age,K,Q.gamma_zeta,Q.gamma,Q.zeta,PI.G_Z.0,PI.G.0,PI.Z.0,y,N,m0,C0,W)
+#save(file = paste(dir,"Data/MCMC_Data_Prediction.RData",sep=""),t.T,n,Age,K,Q.gamma_zeta,Q.gamma,Q.zeta,PI.G_Z.0,PI.G.0,PI.Z.0,y,N,m0,C0,W)
 

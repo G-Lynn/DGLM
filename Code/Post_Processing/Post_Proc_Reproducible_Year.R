@@ -1,16 +1,17 @@
 rm(list=ls())
 library(ggplot2)
 library(reshape2)
-t.T = 20 #19 in full sample t.T = 19
+dir = "~/sDGLM-master/"
+t.T = 21 #number of years from 20:40
 #if prediction t.T = 18
 t = 1
 K = 15
 p = K+1
 B = 0
 N.MC = 1000
-INIT_base = 100
-nSims = 8
-Age = 20 + (1:t.T)
+INIT_base = 0
+nSims = 6
+Age = 20 + (0:(t.T-1))
 players = c(
   "pujolal01",
   "sosasa01",
@@ -43,8 +44,8 @@ for(i in 1:nPlayers) Gamma_Players[[i]] = Zeta_Players[[i]] = Zeta_Players_13[[i
 
 for(jj in 1:nSims){
   init = jj+INIT_base
-  thetaNames = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Theta_colnames.csv",sep=""), header=F, stringsAsFactors=F)
-  theta = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Theta.csv",sep=""), header=F, stringsAsFactors=F)
+  thetaNames = read.csv(paste(dir,"Reproducibility/Init_",init,"/Theta_colnames.csv",sep=""), header=F, stringsAsFactors=F)
+  theta = read.csv(paste(dir,"Reproducibility/Init_",init,"/Theta.csv",sep=""), header=F, stringsAsFactors=F)
   Theta.Mean = matrix(nrow = p, ncol = t.T)
   Theta.CI = list()
   Mu.CI = list()
@@ -75,13 +76,13 @@ for(jj in 1:nSims){
   
   for(t in 1:t.T){
     
-    Names = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
-    gamma = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Gamma_",t,".csv",sep=""), header=F, stringsAsFactors=F)
-    zeta = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+    Names = read.csv(paste(dir,"Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
+    gamma = read.csv(paste(dir,"Reproducibility/Init_",init,"/Gamma_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+    zeta = read.csv(paste(dir,"Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
     
     if(jj==1){
-      zeta_13 = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",141,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
-      zeta_17 = read.csv(paste("~/Desktop/sDGLM-master/Reproducibility/Init_",151,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+      zeta_13 = read.csv(paste(dir,"Reproducibility/Init_",141,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+      zeta_17 = read.csv(paste(dir,"Reproducibility/Init_",151,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
     }
       
     Names = Names[,-1]
@@ -144,12 +145,6 @@ for(jj in 1:nSims){
   Zeta.init[[jj]] = Zeta.Mean
 }
 
-save(file = paste("~/Desktop/sDGLM-master/Reproducibility/Rep_",INIT_base,".RData",sep=""), Gamma.init, Zeta.init, Theta.init, Eta_Players)
-load(file = paste("~/Desktop/sDGLM-master/Reproducibility/Rep_",INIT_base,".RData",sep=""))
-
-
-
-
 print(Theta.init[[1]])
 ThetaMax = matrix(nrow = p, ncol = t.T)
 Theta.max = list()
@@ -166,7 +161,7 @@ colnames(ThetaMax) = as.character(Age)
 
 sa <- stack(as.data.frame(ThetaMax) )
 names(sa) = c("Theta", "Age")
-pdf("~/Dropbox/GT_2015/Figures/Theta_max.pdf")
+pdf(paste(dir,"Figures/Theta_max.pdf",sep=""))
 g <- ggplot(sa, aes(Age, Theta))
 g + geom_boxplot(fill="gray") + ylim(0,1)+
   xlab("Age")+
@@ -206,7 +201,7 @@ names(G.max) = c("Gamma", "Age")
 Z.max$Age = factor(Z.max$Age)
 G.max$Age = factor(G.max$Age)
 
-pdf("~/Dropbox/GT_2015/Figures/Zeta_max.pdf")
+pdf(paste(dir,"Figures/Zeta_max.pdf",sep=""))
 g <- ggplot(Z.max, aes(Age, Zeta))
 g + geom_boxplot(fill="gray") + ylim(0,1)+
   xlab("Age")+
@@ -214,7 +209,7 @@ g + geom_boxplot(fill="gray") + ylim(0,1)+
   theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
 
-pdf("~/Dropbox/GT_2015/Figures/Gamma_max.pdf")
+pdf(paste(dir,"Figures/Gamma_max.pdf",sep=""))
 g <- ggplot(G.max, aes(Age, Gamma))
 g + geom_boxplot(fill="gray") + ylim(0,K)+
   xlab("Age")+
@@ -234,7 +229,7 @@ for(t in 1:t.T){
 }
 
 #load Data
-Data = read.csv("~/Dropbox/Baseball/Lahman/DLM_Data.csv",header=T,stringsAsFactors=F)
+Data = read.csv(paste(dir,"Lahman/DLM_Data.csv",sep=""),header=T,stringsAsFactors=F)
 for(i in 1:nPlayers){
   Age_i = unique(Data[Data$playerID == players[i] & Data$Age>20 & Data$Age<=40 ,c("Age")])
   Year_i = unique(Data[Data$playerID == players[i] & Data$Age>20 & Data$Age<=40,c("yearID")])
@@ -242,7 +237,7 @@ for(i in 1:nPlayers){
   Year[is.element(Age,Age_i)] = Year_i 
   
   tmp = data.frame(Gamma = POI_Gamma[i,], Year = Year, pt025 = POI_Gamma_pt025[i,], pt975 = POI_Gamma_pt975[i,])
-  pdf(paste("~/Dropbox/GT_2015/Figures/Gamma_",players[i],".pdf",sep="") )
+  pdf(paste(dir,"Figures/Gamma_",players[i],".pdf",sep="") )
   g = ggplot(data = tmp, aes(x=Year,y=Gamma,size=1.5 ))+
     geom_point(na.rm=T)+
     geom_line(aes(Year,pt025), linetype=2, size = .5)+
@@ -258,7 +253,7 @@ for(i in 1:nPlayers){
   tmp17 = apply(Zeta_Players_17[[i]],2,mean)
   KK = rep(c(15,13,17), each = t.T)
   tmp = data.frame(Zeta = c(POI_Zeta[i,], tmp13, tmp17), Year = rep(Year,times=3), K = factor(KK) ) 
-  pdf(paste("~/Dropbox/GT_2015/Figures/Zeta_",players[i],".pdf",sep="") )
+  pdf(paste(dir,"Figures/Zeta_",players[i],".pdf",sep="") )
   g=ggplot(data = tmp, aes(x=Year,y=Zeta, colour = K ))+
     geom_point(size = 3, na.rm=T)+
     geom_line()+
@@ -278,7 +273,7 @@ Mean = apply(Mu, 2, mean)
 Quant = apply(Mu,2, quantile, c(.025, .975), na.rm = T)
 
 df = data.frame(Age, Mean, pt025 = Quant[1,], pt975 = Quant[2,])
-pdf(paste("~/Dropbox/GT_2015/Figures/Ability_Curve_",player, ".pdf", sep="") )
+pdf(paste(dir,"Figures/Ability_Curve_",player, ".pdf", sep="") )
 p<-ggplot(data = df, aes(Age,Mean))  + geom_line(size = 2) + geom_line(aes(Age,pt025), linetype=2) + geom_line(aes(Age,pt975), linetype=2) + ylim(0,.15) + ylab("Probability") + theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"))
 print(p)
 dev.off()
@@ -294,7 +289,7 @@ df = melt(t(Gamma.Prob))
 names(df) = c("Age", "Class", "Probability")
 df$Class = factor(df$Class)
 df$Age = Age
-pdf("~/Dropbox/GT_2015/Figures/Posterior_Prob_Gamma.pdf")
+pdf(paste(dir,"Figures/Posterior_Prob_Gamma.pdf",sep=""))
 ggplot(data=df, aes(x=Age, y=Probability, colour=Class) ) +
   geom_line(size = 2)+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
@@ -306,7 +301,7 @@ up.1 = apply(Zeta.Prob,2,quantile,.975)
 m.1 = apply(Zeta.Prob,2,mean)
 
 df = data.frame(Age = Age, m.1, up.1, lw.1)
-pdf("~/Dropbox/GT_2015/Figures/Posterior_Prob_Zeta.pdf")
+pdf(paste(dir,"Figures/Posterior_Prob_Zeta.pdf",sep=""))
 p1 <- ggplot(df, aes(Age, m.1))+
   geom_point(color = "blue")+
   geom_line(data=df, color = "blue")+
@@ -324,7 +319,7 @@ for(t in 1:t.T){
 }
 
 df = data.frame(Zeta = z, Age = as.factor(z.Age) )
-pdf("~/Dropbox/GT_2015/Figures/Zeta_Age_Box.pdf")
+pdf(paste(dir,"Figures/Zeta_Age_Box.pdf",sep=""))
 g <- ggplot(df, aes(Age, Zeta))
 g + geom_boxplot(fill="gray") + ylim(0,1)+ 
   xlab("Age")+
@@ -353,7 +348,7 @@ df.975 = melt(t(Theta.Dynamic.975))
 names(df) = names(df.025) = names(df.975) = c("Age", "Class", "Theta_k")
 df$Class = df.025$Class = df.975$Class = factor(df$Class)
 df$Age = df.025$Age = df.975$Age = Age
-pdf("~/Dropbox/GT_2015/Figures/Posterior_Theta_k.pdf")
+pdf(paste(dir,"Figures/Posterior_Theta_k.pdf",sep=""))
 ggplot(data=df, aes(x=Age, y=Theta_k, colour=Class) ) +
   geom_line(size = 2)+
   geom_line(data = df.025, aes(x=Age,y=Theta_k, colour=Class), linetype=2)+
@@ -368,7 +363,7 @@ df.975 = melt(t(Mu.Dynamic.975))
 names(df) = names(df.025) = names(df.975) = c("Age", "Class", "Mu_k")
 df$Class = df.025$Class = df.975$Class = factor(df$Class)
 df$Age = df.025$Age = df.975$Age = Age
-pdf("~/Dropbox/GT_2015/Figures/Posterior_Mu_k.pdf")
+pdf(paste(dir,"Figures/Posterior_Mu_k.pdf",sep=""))
 ggplot(data=df, aes(x=Age, y=Mu_k, colour=Class) ) +
   geom_line(size = 2)+
   geom_line(data = df.025, aes(x=Age,y=Mu_k, colour=Class), linetype=2)+
@@ -376,7 +371,7 @@ ggplot(data=df, aes(x=Age, y=Mu_k, colour=Class) ) +
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
 
-pdf("~/Dropbox/GT_2015/Figures/PED_Effect_Log.pdf")
+pdf(paste(dir,"Figures/AP_Effect_Log.pdf",sep=""))
 df = data.frame(Age = Age, t(Theta.CI[[K+1]]))
 ggplot(data = df, aes(x=Age, y = X2))+
   geom_line(size=2)+
@@ -389,10 +384,10 @@ dev.off()
 tmp = Theta.CI[[K+1]]-2.94
 benchmark = rep(-2.94,t.T)
 
-PED.Effect = 1/(1+exp(-tmp)) - 1/(1+exp(-benchmark))
-df = data.frame(Age = Age, t(PED.Effect))
+AP.Effect = 1/(1+exp(-tmp)) - 1/(1+exp(-benchmark))
+df = data.frame(Age = Age, t(AP.Effect))
 
-pdf("~/Dropbox/GT_2015/Figures/PED_Effect_Probability.pdf")
+pdf(paste(dir,"Figures/AP_Effect_Probability.pdf",sep=""))
 ggplot(data = df, aes(x=Age, y = X2))+
   geom_line(size=2)+
   geom_line(aes(x=Age,y=X1), linetype=2)+
@@ -400,3 +395,97 @@ ggplot(data = df, aes(x=Age, y = X2))+
   ylab("Probability")+
   theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
 dev.off()
+
+########################################
+## Generate proportion by year
+Zeta_Year = list()
+Year_Index = 1990:2015
+nYears = length(Year_Index)
+#initialize the first element to zero and then remove.  necessary for concatenating vectors.  
+for(i in 1:nYears){
+  Zeta_Year[[i]] = 0
+}
+
+# Age threshold.  The idea is that we know the least about the youngest players.  
+summary(Data$yearID[is.element(Data$playerID,Cohort)])
+for(t in 1:t.T){
+  Names = read.csv(paste(dir,"Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
+  zeta = read.csv(paste(dir,"Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+  
+  Names = Names[,-1]
+  zeta = zeta[,-1]
+  
+  zeta = zeta[(B+1):N.MC,]
+  colnames(zeta) = Names
+  
+  nPlayers = length(Names)
+  Years = rep(NA,nPlayers)
+  for(i in 1:nPlayers){
+    Years[i] = Data$yearID[Data$playerID == as.character(Names[i]) & Data$Age == Age[t]][1]
+  }
+  
+  for(i in 1:nPlayers){
+    Zeta_Year[[ which(Years[i]==Year_Index) ]] = c(Zeta_Year[[which(Years[i]==Year_Index)]], zeta[,i])
+  }
+}
+
+Zeta_Prob = matrix(nrow = 3, ncol = nYears)
+Pop_Prob.MC = matrix(nrow = N.MC, ncol = nYears)
+nCohort = rep(NA,nYears)
+for(i in 1:nYears){
+  #Now remove the first zero in every list element.
+  Zeta_Year[[i]] = Zeta_Year[[i]][-1]
+  nPlayers = length(Zeta_Year[[i]])/N.MC
+  nCohort[i] = nPlayers
+  index = rep(1:N.MC, times = nPlayers)
+  for(ii in 1:N.MC){
+    Pop_Prob.MC[ii,i] = mean(Zeta_Year[[i]][ index == ii ])
+  }
+  
+}
+
+#Pop_Prob.MC = Pop_Prob.MC - Pop_Prob.MC[,1]
+m.1 = apply(Pop_Prob.MC,2,mean, na.rm = T)
+up.1 = apply(Pop_Prob.MC,2,quantile,.975, na.rm = T)
+lw.1 = apply(Pop_Prob.MC,2,quantile,.025, na.rm = T)
+
+traj.1 = Pop_Prob.MC[sample(size = 1, 1:N.MC),]
+traj.2 = Pop_Prob.MC[sample(size = 1, 1:N.MC),]
+
+df = data.frame(Year = Year_Index,  m.1 = m.1, up.1 = up.1, lw.1 = lw.1, traj.1 = traj.1, traj.2 = traj.2 )
+png(paste(dir,"Figures/Population_Pct_Year.png",sep=""))
+p1 <- ggplot(df, aes(Year, m.1))+
+  geom_point(color = "blue")+
+  geom_line(data=df, color = "blue")+
+  geom_ribbon(data=df,aes(ymin=lw.1,ymax=up.1),alpha=0.3, color = "blue", fill = "blue")+ 
+  ylab("Population %")+
+  #ylim(2.5,10)+
+  theme(axis.text=element_text(size=20, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
+print(p1)   
+dev.off()
+
+
+##########################################
+#Generate list
+init = INIT_base + 1
+Table_strong = list()
+Table_moderate = list()
+Table_weak = list()
+Table_spec = list()
+for(t in 1:t.T){
+  Names = read.csv(paste("~/sDGLM/Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
+  zeta = read.csv(paste("~/sDGLM/Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+  
+  
+  Names = Names[,-1]
+  zeta = zeta[,-1]
+  zeta = zeta[(B+1):N.MC,]
+  zeta_mean = apply(zeta,2,mean)
+  if(sum(zeta_mean>=.95)>0) Table_strong[[t]] = Names[zeta_mean>=.95]
+  if(sum(zeta_mean<.95 & zeta_mean>=.85)) Table_moderate[[t]] = Names[zeta_mean<.95 & zeta_mean>=.85]
+  if(sum(zeta_mean<.85 & zeta_mean>=.65)) Table_weak[[t]] = Names[zeta_mean<.85 & zeta_mean>=.65]
+  if(sum(zeta_mean<.65 & zeta_mean>=.4)) Table_spec[[t]] = Names[zeta_mean<.65 & zeta_mean>=.4] 
+} 
+
+
+
