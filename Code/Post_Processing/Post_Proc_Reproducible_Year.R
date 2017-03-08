@@ -399,7 +399,7 @@ dev.off()
 ########################################
 ## Generate proportion by year
 Zeta_Year = list()
-Year_Index = 1990:2015
+Year_Index = 1990:2016
 nYears = length(Year_Index)
 #initialize the first element to zero and then remove.  necessary for concatenating vectors.  
 for(i in 1:nYears){
@@ -473,8 +473,8 @@ Table_moderate = list()
 Table_weak = list()
 Table_spec = list()
 for(t in 1:t.T){
-  Names = read.csv(paste("~/sDGLM/Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
-  zeta = read.csv(paste("~/sDGLM/Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
+  Names = read.csv(paste(dir,"Reproducibility/Init_",init,"/Gamma_",t,"_colnames.csv",sep=""),header=F, stringsAsFactors=F)
+  zeta = read.csv(paste(dir,"Reproducibility/Init_",init,"/Zeta_",t,".csv",sep=""), header=F, stringsAsFactors=F)
   
   
   Names = Names[,-1]

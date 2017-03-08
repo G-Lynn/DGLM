@@ -10,7 +10,7 @@ Jensen_118 = as.character(Jensen_118[,1])
 Data = Data[!duplicated(Data[,c("playerID","yearID")]) & !duplicated(Data[,c("playerID","yearID")]),]
 Data = Data[!is.na(Data$Age),]
 AB_thresh = 40
-Year_thresh = 2015  #if prediction, change to 2005
+Year_thresh = 2016  #if prediction, change to 2005
 
 Age.Range = range(Data$Age)
 Age.length = Age.Range[2]-Age.Range[1]+1
