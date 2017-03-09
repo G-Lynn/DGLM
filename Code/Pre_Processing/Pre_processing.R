@@ -14,7 +14,7 @@ Fielding = Fielding[order(Fielding$playerID),]
 
 
 
-start.Year = 1990
+start.Year = 1950
 end.Year = 2016
 AB.Thresh = 1
 
