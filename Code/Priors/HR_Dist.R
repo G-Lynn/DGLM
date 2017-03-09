@@ -1,12 +1,18 @@
+rm(list=ls())
+dir = "~/sDGLM-master/"
+load(paste(dir,"Data/AgeAlignment_modern.RData",sep=""))
+n.T = length(Age.Alignment)
+
 Mu.obs = list()
 ABs = HRs = NULL
 Ages = NULL
+n = rep(NA,n.T)
 for(t in 1:n.T){
-  nn = length(Age.Alignment[[t]])
-  Ages = c(Ages,rep(Age[t], nn ) )
-  for(i in 1:length(Age.Alignment[[t]]) ){
-    HRs = c(HRs,as.numeric(Age.Alignment[[t]][[i]][[2]][2])  )
-    ABs = c(ABs, as.numeric(Age.Alignment[[t]][[i]][[2]][1]) )
+  n[t] = length(Age.Alignment[[t]])
+  Ages = c(Ages,rep(Age.Alignment[[t]][[1]]$Age, n[t] ) )
+  for(i in 1:n[t]){
+    HRs = c(HRs,as.numeric(Age.Alignment[[t]][[i]]$Response$HR)  )
+    ABs = c(ABs, as.numeric(Age.Alignment[[t]][[i]]$Response$AB) )
   }
 }
 
@@ -17,7 +23,8 @@ p <- ggplot(Data.df, aes(Age, HRs))
 p + geom_boxplot(fill="gray") + ylim(0,100)+
   xlab("Age")+
   ylab("Home runs")+
-  theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
+  theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))+
+  scale_x_discrete(breaks = c(20,25,30,35,40,45))
 dev.off()
 
 
@@ -26,8 +33,11 @@ p <- ggplot(Data.df, aes(Age, Rate))
 p + geom_boxplot(fill="gray") + ylim(0,.3)+
   xlab("Age")+
   ylab("Probability")+
-  theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))
+  theme(axis.text=element_text(size=10, color="black"),axis.title=element_text(size=24,face="bold"), legend.text=element_text(size=20))+
+  scale_x_discrete(breaks = c(20,25,30,35,40,45))
 dev.off()
+
+
   
 
 
