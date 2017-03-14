@@ -26,9 +26,9 @@ for(t in 1:t.T) Kappa[[t]] = y[[t]] - .5*N[[t]]
 Post.Mean.Theta = Post.Err.Theta = list()
 Post.Mean.Gamma = Post.Err.Gamma = list()
 
-B = 10 #1000 #20000
+B = 1000 #20000
 Thin.Rate = 1 #10
-nSamples = 10 #1000 #10000
+nSamples = 1000 #10000
 INIT_base = 0
 inits = INIT_base + 1 
 print(inits)
