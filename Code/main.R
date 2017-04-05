@@ -29,12 +29,12 @@ Post.Mean.Gamma = Post.Err.Gamma = list()
 B = 1000 #20000
 Thin.Rate = 1 #10
 nSamples = 1000 #10000
-INIT_base = 0
-inits = INIT_base + 1 
+INIT_base = 0  #the batch of simulations.  This doesn't need to be changed and is only useful for many simulations with different settings
+inits = INIT_base + 1 #if 5 simulations in parallel, inits = INIT_base + 1:5
 print(inits)
 
 N.MC = B+Thin.Rate*nSamples
-nCores = 1
+nCores = 1 #number of cores the user has available.  
 sigma2.init = 2*diag(W)
 ptm = proc.time()[3]
 mclapply(inits, function(init) MCMC.collapsed(init,dir,nSamples,N.MC,Thin.Rate,m0,C0,W,sigma2.theta = sigma2.init,t.T,n,K,PI.G_Z.0,Q.gamma_zeta,N,y), mc.cores = nCores )
